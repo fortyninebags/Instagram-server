@@ -16,11 +16,11 @@ export class Post extends BaseEntity {
 
     @Field()
     @UpdateDateColumn()
-    updatedAt: string
+    updatedAt: string;
 
     @Field()
     @CreateDateColumn()
-    createdAt: string
+    createdAt: string;
 
     @Field()
     @Column({ type: "int", default: 0 })
@@ -40,6 +40,6 @@ export class Post extends BaseEntity {
     @OneToMany(() => Likes, (likes) => likes.post)
     likes: Likes[];
   
-    @Field()
-    comment:string
+    @OneToMany(() => Comment, (comment) => comment.posts)
+    comment: Comment[];
 }

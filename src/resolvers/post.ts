@@ -100,7 +100,7 @@ if(!req.session!.userId){
     @Arg("cursor", {nullable:true}) cursor: string | null
   ):Promise<PaginatedPosts> {
    const realLimit = Math.min(50,limit)
-   const realLimitPlusOne = realLimit -1
+   const realLimitPlusOne = realLimit +1
 
    const replacements : any[] = [realLimitPlusOne]
 
@@ -113,7 +113,7 @@ if(!req.session!.userId){
    from post p
    ${cursor ? `where p."createdAt" < $2`: ""}
    // SORTS BY THE NEWEST 
-   order by p."createdAt" ASC
+   order by p."createdAt" DSC
    limit $1
    `,
    replacements

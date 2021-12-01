@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn, Entity,OneToMany,PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Likes } from "./Likes";
+import { Message } from "./Message";
 import { Post } from "./Post";
 
 
@@ -40,6 +41,12 @@ export class User extends BaseEntity {
     @OneToMany(() => Likes, (likes) => likes.user)
     likes: Likes[];
 
+    @OneToMany(() => Comment, (comment) => comment.creator)
+    comment: Comment[];
+
     @Column({nullable:true})
     profileId: number;
+    
+    @OneToMany(() => Message, (message) => message.creator)
+    message: Message[];
 }

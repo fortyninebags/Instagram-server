@@ -1,7 +1,6 @@
 import { Field, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity,PrimaryGeneratedColumn} from "typeorm";
-
-
+import { BaseEntity, Column, Entity,ManyToOne,PrimaryGeneratedColumn} from "typeorm";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
@@ -16,6 +15,10 @@ export class Message extends BaseEntity{
     @Field(() => Int)
     @Column()
     creatorId: number;
+
+    @Field()
+    @ManyToOne(() => User, (user) => user.message)
+    creator: User;
 
     @Field(() => Int)
     @Column()
