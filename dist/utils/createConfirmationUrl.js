@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createConfirmationUrl = void 0;
-const redisPrefixes_1 = require("src/prefixes/redisPrefixes");
-const redis_1 = require("src/redis");
+const redisPrefixes_1 = require("../prefixes/redisPrefixes");
+const redis_1 = require("../redis");
 const uuid_1 = require("uuid");
 const createConfirmationUrl = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const token = (0, uuid_1.v4)();

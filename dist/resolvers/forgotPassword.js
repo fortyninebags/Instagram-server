@@ -22,11 +22,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.forgotPasswordResolver = void 0;
-const User_1 = require("src/entities/User");
-const isAuth_1 = require("src/middleware/isAuth");
+const User_1 = require("../entities/User");
+const isAuth_1 = require("../middleware/isAuth");
 const redisPrefixes_1 = require("src/prefixes/redisPrefixes");
-const redis_1 = require("src/redis");
-const sendEmail_1 = require("src/utils/sendEmail");
+const redis_1 = require("../redis");
+const sendEmail_1 = require("../utils/sendEmail");
 const type_graphql_1 = require("type-graphql");
 const uuid_1 = require("uuid");
 let forgotPasswordResolver = class forgotPasswordResolver {

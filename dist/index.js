@@ -79,7 +79,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     }));
     apolloServer.applyMiddleware({ app, cors: false });
     app.listen(4000, () => {
-        console.log("currently listening on port 4000");
+        console.log("Currently listening on port 4000");
     });
 });
 main().catch(err => console.error(err));

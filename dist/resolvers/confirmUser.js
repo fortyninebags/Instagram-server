@@ -22,8 +22,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConfirmUserResolver = void 0;
-const User_1 = require("src/entities/User");
-const redis_1 = require("src/redis");
+const User_1 = require("../entities/User");
+const redis_1 = require("../redis");
 const type_graphql_1 = require("type-graphql");
 let ConfirmUserResolver = class ConfirmUserResolver {
     confirmUser(token) {

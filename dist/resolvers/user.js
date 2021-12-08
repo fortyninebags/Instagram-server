@@ -25,16 +25,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = exports.UserResponse = exports.ErrorField = exports.UserInput = void 0;
-const User_1 = require("src/entities/User");
+const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
-const sendEmail_1 = require("src/utils/sendEmail");
-const createConfirmationUrl_1 = require("src/utils/createConfirmationUrl");
-const changePasswordInput_1 = require("src/forgotPasswordInput.ts/changePasswordInput");
-const redisPrefixes_1 = require("src/prefixes/redisPrefixes");
-const redis_1 = require("src/redis");
-const constants_1 = require("src/constants");
-const isAuth_1 = require("src/middleware/isAuth");
+const sendEmail_1 = require("../utils/sendEmail");
+const createConfirmationUrl_1 = require("../utils/createConfirmationUrl");
+const changePasswordInput_1 = require("../forgotPasswordInput.ts/changePasswordInput");
+const redisPrefixes_1 = require("../prefixes/redisPrefixes");
+const redis_1 = require("../redis");
+const constants_1 = require("../constants");
+const isAuth_1 = require("../middleware/isAuth");
 let UserInput = class UserInput {
 };
 __decorate([

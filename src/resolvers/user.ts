@@ -1,14 +1,14 @@
-import { User } from "src/entities/User";
+import { User } from "../entities/User";
 import { Arg, Ctx, Field, InputType, Mutation,ObjectType,Query,Resolver, UseMiddleware } from "type-graphql";
 import argon2 from 'argon2';
-import { MyContext } from "src/constants/MyContext";
-import { sendEmail } from "src/utils/sendEmail";
-import { createConfirmationUrl } from "src/utils/createConfirmationUrl";
-import { changePasswordInput } from "src/forgotPasswordInput.ts/changePasswordInput";
-import { confirmUserPrefix, forgotPasswordPrefix } from "src/prefixes/redisPrefixes";
-import { redis } from "src/redis";
-import { COOKIE_NAME } from "src/constants";
-import { isAuth } from "src/middleware/isAuth";
+import { MyContext } from "../constants/MyContext";
+import { sendEmail } from "../utils/sendEmail";
+import { createConfirmationUrl } from "../utils/createConfirmationUrl";
+import { changePasswordInput } from "../forgotPasswordInput.ts/changePasswordInput";
+import { confirmUserPrefix, forgotPasswordPrefix } from "../prefixes/redisPrefixes";
+import { redis } from "../redis";
+import { COOKIE_NAME } from "../constants";
+import { isAuth } from "../middleware/isAuth";
 
 @InputType()
 export class UserInput{

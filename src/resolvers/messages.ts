@@ -1,6 +1,6 @@
-import { MyContext } from "src/constants/MyContext";
-import { Message } from "src/entities/Message";
-import { isAuth } from "src/middleware/isAuth";
+import { MyContext } from "../constants/MyContext";
+import { Message } from "../entities/Message";
+import { isAuth } from "../middleware/isAuth";
 import { Arg, Ctx, Field,
  InputType, Int, Mutation, Query, Resolver,
 UseMiddleware } from "type-graphql";

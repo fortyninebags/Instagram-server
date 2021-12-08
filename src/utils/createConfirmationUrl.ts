@@ -1,5 +1,5 @@
-import { confirmUserPrefix } from "src/prefixes/redisPrefixes";
-import { redis } from "src/redis";
+import { confirmUserPrefix } from "../prefixes/redisPrefixes";
+import { redis } from "../redis";
 import { v4 } from "uuid";
 
 export const createConfirmationUrl = async (userId : number) => {

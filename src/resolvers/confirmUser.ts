@@ -1,5 +1,5 @@
-import { User } from "src/entities/User";
-import { redis } from "src/redis";
+import { User } from "../entities/User";
+import { redis } from "../redis";
 import { Arg, Mutation, Resolver } from "type-graphql";
 
 

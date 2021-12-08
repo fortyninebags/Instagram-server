@@ -1,9 +1,11 @@
-import { Post } from "src/entities/Post";
-import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
-import { MyContext } from "src/constants/MyContext";
-import { isAuth } from "src/middleware/isAuth";
+import { Post } from "../entities/Post";
+import { Arg, Ctx, Field, 
+  FieldResolver, InputType,
+  Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
+import { MyContext } from "../constants/MyContext";
+import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
-import { User } from "src/entities/User";
+import { User } from "../entities/User";
 
 @InputType()
 export class PostInput{

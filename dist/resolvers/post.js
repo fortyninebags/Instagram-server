@@ -22,11 +22,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = exports.PostInput = void 0;
-const Post_1 = require("src/entities/Post");
+const Post_1 = require("../entities/Post");
 const type_graphql_1 = require("type-graphql");
-const isAuth_1 = require("src/middleware/isAuth");
+const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
-const User_1 = require("src/entities/User");
+const User_1 = require("../entities/User");
 let PostInput = class PostInput {
 };
 __decorate([

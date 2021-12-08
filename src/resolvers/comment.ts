@@ -1,7 +1,7 @@
-import {Comment} from 'src/entities/Comment';
+import {Comment} from '../entities/Comment';
 import { Arg, Ctx, Field,  InputType, Int, Mutation, ObjectType, Query, Resolver,  UseMiddleware } from "type-graphql";
-import { MyContext } from "src/constants/MyContext";
-import { isAuth } from "src/middleware/isAuth";
+import { MyContext } from "../constants/MyContext";
+import { isAuth } from "../middleware/isAuth";
 import { getConnection } from 'typeorm';
 
 @InputType()

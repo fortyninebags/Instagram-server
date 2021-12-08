@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createLikeLoader = void 0;
 const dataloader_1 = __importDefault(require("dataloader"));
-const Likes_1 = require("src/entities/Likes");
+const Likes_1 = require("../entities/Likes");
 const createLikeLoader = () => new dataloader_1.default((keys) => __awaiter(void 0, void 0, void 0, function* () {
     const likes = yield Likes_1.Likes.findByIds(keys);
     const likesIdToLikes = {};

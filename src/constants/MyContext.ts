@@ -1,7 +1,7 @@
 import { Request,Response } from "express";
 import { Redis } from "ioredis";
-import { createLikeLoader } from "src/utils/createLikesLoader";
-import { createUserLoader } from "src/utils/createUserLoader";
+import { createLikeLoader } from "../utils/createLikesLoader";
+import { createUserLoader } from "../utils/createUserLoader";
 
 export interface MyContext {
   req: Request;

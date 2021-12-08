@@ -1,9 +1,9 @@
 
-import { User } from "src/entities/User";
-import { isAuth } from "src/middleware/isAuth";
+import { User } from "../entities/User";
+import { isAuth } from "../middleware/isAuth";
 import { forgotPasswordPrefix } from "src/prefixes/redisPrefixes";
-import { redis } from "src/redis";
-import { sendEmail } from "src/utils/sendEmail";
+import { redis } from "../redis";
+import { sendEmail } from "../utils/sendEmail";
 import { Arg, Mutation, Resolver, UseMiddleware } from "type-graphql";
 import { v4 } from "uuid";
 
