@@ -1,5 +1,5 @@
 import { MyContext } from "src/constants/MyContext";
-import { Message } from "src/entity/Message";
+import { Message } from "src/entities/Message";
 import { isAuth } from "src/middleware/isAuth";
 import { Arg, Ctx, Field,
  InputType, Int, Mutation, Query, Resolver,
@@ -50,7 +50,7 @@ export class MessageResolver{
     return true;
    }
    @Query(() => [Message]) 
-  async posts(
+  async messages(
     // // limits for showable posts
     @Arg("limit",() => Int) limit:number,
     // the date the post is created

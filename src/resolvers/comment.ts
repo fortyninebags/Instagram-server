@@ -1,4 +1,4 @@
-import {Comment} from 'src/entity/Comment';
+import {Comment} from 'src/entities/Comment';
 import { Arg, Ctx, Field,  InputType, Int, Mutation, ObjectType, Query, Resolver,  UseMiddleware } from "type-graphql";
 import { MyContext } from "src/constants/MyContext";
 import { isAuth } from "src/middleware/isAuth";

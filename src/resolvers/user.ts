@@ -1,4 +1,4 @@
-import { User } from "src/entity/User";
+import { User } from "src/entities/User";
 import { Arg, Ctx, Field, InputType, Mutation,ObjectType,Query,Resolver, UseMiddleware } from "type-graphql";
 import argon2 from 'argon2';
 import { MyContext } from "src/constants/MyContext";

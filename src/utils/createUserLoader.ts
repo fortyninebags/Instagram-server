@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { User } from "src/entity/User"
+import { User } from "src/entities/User"
 
 
 export const createUserLoader = () =>
@@ -10,5 +10,5 @@ new DataLoader<number,User>(async userIds => {
         userIdToUser[u.id] = u
     });
     const sortedUsers = userIds.map(userId => userIdToUser[userId]);
-    return sortedUsers
+    return sortedUsers;
 });

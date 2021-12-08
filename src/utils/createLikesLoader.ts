@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { Likes } from "src/entity/Likes"
+import { Likes } from "src/entities/Likes"
 
 
 export const createLikeLoader = () =>

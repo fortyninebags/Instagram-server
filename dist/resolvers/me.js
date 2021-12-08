@@ -22,7 +22,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MeResolver = void 0;
-const User_1 = require("src/entity/User");
+const User_1 = require("src/entities/User");
 const type_graphql_1 = require("type-graphql");
 let MeResolver = class MeResolver {
     me(ctx) {

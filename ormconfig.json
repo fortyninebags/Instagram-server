@@ -1,14 +1,10 @@
 {
-    "name":"default",
-    "type":"postgres",
-    "host":"localhost",
+    "type": "postgres",
+    "host": "localhost",
     "port": 5432,
-    "username":"postgres",
-    "password":"postgres",
-    "database": "instagram-clone",
-    "synchronize" : true,
-    "logging": true,
-    "entities": [
-        "src/entity/*.*"
-    ]
-}
+    "username": "postgres",
+    "password": "postgres",
+    "database": "instagram clone",
+    "entities": ["dist/entities/*.js"],
+    "migrations": ["dist/migrations/*.js"]
+  }

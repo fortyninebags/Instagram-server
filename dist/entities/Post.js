@@ -12,7 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Post = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Likes_1 = require("./Likes");
 const User_1 = require("./User");
+const Comment_1 = require("./Comment");
 let Post = class Post extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -21,32 +23,45 @@ __decorate([
     __metadata("design:type", Number)
 ], Post.prototype, "id", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
+    (0, type_graphql_1.Field)({ nullable: true }),
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Post.prototype, "description", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     (0, typeorm_1.UpdateDateColumn)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Date)
 ], Post.prototype, "updatedAt", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     (0, typeorm_1.CreateDateColumn)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Date)
 ], Post.prototype, "createdAt", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    (0, typeorm_1.Column)({ type: "int", default: 0 }),
+    __metadata("design:type", Number)
+], Post.prototype, "postLikes", void 0);
 __decorate([
     (0, type_graphql_1.Field)(() => type_graphql_1.Int),
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], Post.prototype, "creatorId", void 0);
 __decorate([
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int, { nullable: true }),
+    __metadata("design:type", Object)
+], Post.prototype, "likeStatus", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.posts),
     __metadata("design:type", User_1.User)
 ], Post.prototype, "creator", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
+    (0, typeorm_1.OneToMany)(() => Likes_1.Likes, (likes) => likes.post),
+    __metadata("design:type", Array)
+], Post.prototype, "likes", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Comment_1.Comment, (comment) => comment.post),
+    __metadata("design:type", Array)
 ], Post.prototype, "comment", void 0);
 Post = __decorate([
     (0, type_graphql_1.ObjectType)(),

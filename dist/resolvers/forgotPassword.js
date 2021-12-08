@@ -22,7 +22,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.forgotPasswordResolver = void 0;
-const User_1 = require("src/entity/User");
+const User_1 = require("src/entities/User");
 const isAuth_1 = require("src/middleware/isAuth");
 const redisPrefixes_1 = require("src/prefixes/redisPrefixes");
 const redis_1 = require("src/redis");

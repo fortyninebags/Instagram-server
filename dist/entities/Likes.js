@@ -9,16 +9,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostLikes = void 0;
+exports.Likes = void 0;
 const typeorm_1 = require("typeorm");
-let PostLikes = class PostLikes extends typeorm_1.BaseEntity {
+const Post_1 = require("./Post");
+const User_1 = require("./User");
+let Likes = class Likes extends typeorm_1.BaseEntity {
 };
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int' }),
+    (0, typeorm_1.Column)({ type: "int" }),
     __metadata("design:type", Number)
-], PostLikes.prototype, "value", void 0);
-PostLikes = __decorate([
+], Likes.prototype, "value", void 0);
+__decorate([
+    (0, typeorm_1.PrimaryColumn)(),
+    __metadata("design:type", Number)
+], Likes.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.likes),
+    __metadata("design:type", User_1.User)
+], Likes.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.PrimaryColumn)(),
+    __metadata("design:type", Number)
+], Likes.prototype, "postId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Post_1.Post, (post) => post.likes, {
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Post_1.Post)
+], Likes.prototype, "post", void 0);
+Likes = __decorate([
     (0, typeorm_1.Entity)()
-], PostLikes);
-exports.PostLikes = PostLikes;
+], Likes);
+exports.Likes = Likes;
 //# sourceMappingURL=Likes.js.map

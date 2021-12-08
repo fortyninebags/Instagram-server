@@ -16,9 +16,9 @@ export class Message extends BaseEntity{
     @Column()
     creatorId: number;
 
-    @Field()
+    @Field(() => User)
     @ManyToOne(() => User, (user) => user.message)
-    creator: User;
+    sender: User;
 
     @Field(() => Int)
     @Column()

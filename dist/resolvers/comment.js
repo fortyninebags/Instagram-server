@@ -21,103 +21,85 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostResolver = exports.PostInput = void 0;
-const Post_1 = require("src/entities/Post");
+exports.CommentResolver = exports.CommentInput = void 0;
+const Comment_1 = require("src/entities/Comment");
 const type_graphql_1 = require("type-graphql");
 const isAuth_1 = require("src/middleware/isAuth");
 const typeorm_1 = require("typeorm");
-const User_1 = require("src/entities/User");
-let PostInput = class PostInput {
+let CommentInput = class CommentInput {
 };
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], PostInput.prototype, "description", void 0);
-PostInput = __decorate([
+], CommentInput.prototype, "body", void 0);
+CommentInput = __decorate([
     (0, type_graphql_1.InputType)()
-], PostInput);
-exports.PostInput = PostInput;
-let PaginatedPosts = class PaginatedPosts {
+], CommentInput);
+exports.CommentInput = CommentInput;
+let PaginatedComments = class PaginatedComments {
 };
 __decorate([
-    (0, type_graphql_1.Field)(() => Post_1.Post),
+    (0, type_graphql_1.Field)(() => Comment_1.Comment),
     __metadata("design:type", Array)
-], PaginatedPosts.prototype, "posts", void 0);
+], PaginatedComments.prototype, "comments", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", Boolean)
-], PaginatedPosts.prototype, "hasMore", void 0);
-PaginatedPosts = __decorate([
+], PaginatedComments.prototype, "hasMore", void 0);
+PaginatedComments = __decorate([
     (0, type_graphql_1.ObjectType)()
-], PaginatedPosts);
-let PostResolver = class PostResolver {
-    creator(post, { userLoader }) {
+], PaginatedComments);
+let CommentResolver = class CommentResolver {
+    createComment(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield userLoader.load(post.creatorId);
+            return Comment_1.Comment.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId })).save();
         });
     }
-    likeStatus(post, { likesLoader, req }) {
+    updateComment(id, input) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.session.userId) {
-                return null;
+            const comment = yield Comment_1.Comment.findOne(id);
+            if (!comment) {
+                throw new Error("Comment does not exist");
             }
-            const like = yield likesLoader.load({
-                postId: post.id,
-                userId: req.session.userId
-            });
-            return like ? like.value : null;
-        });
-    }
-    createPost(input, { req }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return Post_1.Post.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId })).save();
-        });
-    }
-    updatePost(id, input) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const post = yield Post_1.Post.findOne(id);
-            if (!post) {
-                return null;
-            }
-            if (input.description) {
-                yield Post_1.Post.update({ id }, {
-                    description: input.description
+            if (input.body) {
+                yield Comment_1.Comment.update({ id }, {
+                    body: input.body
                 });
-                yield post.save();
+                yield comment.save();
             }
-            return post;
+            return comment;
         });
     }
-    deletePost(id, { req }) {
+    deleteComment(id, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Post_1.Post.delete({ id, creatorId: req.session.userId });
+            yield Comment_1.Comment.delete({ id, creatorId: req.session.userId });
             return true;
         });
     }
-    posts(limit, cursor) {
+    comments(limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
-            const realLimit = Math.min(50, limit);
+            const realLimit = Math.min(6, limit);
             const realLimitPlusOne = realLimit + 1;
             const replacements = [realLimitPlusOne];
             if (cursor) {
                 replacements.push(new Date(parseInt(cursor)));
             }
-            const posts = yield (0, typeorm_1.getConnection)().query(`
-   // select all fields from the post table
-   select p.*, 
-   from post p
-   ${cursor ? `where p."createdAt" < $2` : ""}
+            const comments = yield (0, typeorm_1.getConnection)().query(`
+   // select all fields from the table
+   select c.*, 
+   from comment c
+   ${cursor ? `where c."createdAt" < $2` : ""}
    // SORTS BY THE NEWEST 
-   order by p."createdAt" DSC
+   order by c."createdAt" DSC
    limit $1
    `, replacements);
             return {
-                posts: posts.slice(0, realLimit),
-                hasMore: posts.length === realLimitPlusOne
+                comments: comments.slice(0, realLimit),
+                hasMore: comments.length === realLimitPlusOne
             };
         });
     }
-    like(postId, value, { req }) {
+    likeComment(commentId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isLiked = value !== null;
             const realValue = isLiked ? 1 : null;
@@ -125,56 +107,40 @@ let PostResolver = class PostResolver {
             (0, typeorm_1.getConnection)().query(`
    START TRANSACTION;
 
-   insert into likes("userId", "postId","value")
-   values(${userId},${postId},${realValue})
+   insert into likes("userId", "commentId","value")
+   values(${userId},${commentId},${realValue})
 
-   update post
-   set postLikes = postLikes + ${realValue}
-   where id = ${postId}
+   update comment
+   set commentLikes = commentLikes + ${realValue}
+   where id = ${commentId}
 
    COMMIT;
   `);
-            yield Post_1.Post.update({
-                id: postId,
+            yield Comment_1.Comment.update({
+                id: commentId,
             }, {});
             return true;
         });
     }
 };
 __decorate([
-    (0, type_graphql_1.FieldResolver)(() => User_1.User),
-    __param(0, (0, type_graphql_1.Root)()),
-    __param(1, (0, type_graphql_1.Ctx)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Post_1.Post, Object]),
-    __metadata("design:returntype", Promise)
-], PostResolver.prototype, "creator", null);
-__decorate([
-    (0, type_graphql_1.FieldResolver)(() => Post_1.Post),
-    __param(0, (0, type_graphql_1.Root)()),
-    __param(1, (0, type_graphql_1.Ctx)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Post_1.Post, Object]),
-    __metadata("design:returntype", Promise)
-], PostResolver.prototype, "likeStatus", null);
-__decorate([
-    (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
+    (0, type_graphql_1.Mutation)(() => Comment_1.Comment, { nullable: true }),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)("input")),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [PostInput, Object]),
+    __metadata("design:paramtypes", [CommentInput, Object]),
     __metadata("design:returntype", Promise)
-], PostResolver.prototype, "createPost", null);
+], CommentResolver.prototype, "createComment", null);
 __decorate([
-    (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
+    (0, type_graphql_1.Mutation)(() => Comment_1.Comment, { nullable: true }),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)('input')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, PostInput]),
+    __metadata("design:paramtypes", [Number, CommentInput]),
     __metadata("design:returntype", Promise)
-], PostResolver.prototype, "updatePost", null);
+], CommentResolver.prototype, "updateComment", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
@@ -183,28 +149,28 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
-], PostResolver.prototype, "deletePost", null);
+], CommentResolver.prototype, "deleteComment", null);
 __decorate([
-    (0, type_graphql_1.Query)(() => [Post_1.Post]),
+    (0, type_graphql_1.Query)(() => [Comment_1.Comment]),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)("cursor", { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
-], PostResolver.prototype, "posts", null);
+], CommentResolver.prototype, "comments", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
-    __param(0, (0, type_graphql_1.Arg)('postId', () => type_graphql_1.Int)),
+    __param(0, (0, type_graphql_1.Arg)('commentId', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)('value', () => type_graphql_1.Int)),
     __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, Object]),
     __metadata("design:returntype", Promise)
-], PostResolver.prototype, "like", null);
-PostResolver = __decorate([
-    (0, type_graphql_1.Resolver)(Post_1.Post)
-], PostResolver);
-exports.PostResolver = PostResolver;
-//# sourceMappingURL=post.js.map
+], CommentResolver.prototype, "likeComment", null);
+CommentResolver = __decorate([
+    (0, type_graphql_1.Resolver)(Comment_1.Comment)
+], CommentResolver);
+exports.CommentResolver = CommentResolver;
+//# sourceMappingURL=comment.js.map

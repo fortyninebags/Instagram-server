@@ -25,7 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = exports.UserResponse = exports.ErrorField = exports.UserInput = void 0;
-const User_1 = require("src/entity/User");
+const User_1 = require("src/entities/User");
 const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
 const sendEmail_1 = require("src/utils/sendEmail");
@@ -101,7 +101,7 @@ let UserResolver = class UserResolver {
                     errors: [{
                             field: "username",
                             message: "Username must be greater than 6"
-                        }],
+                        }]
                 };
             }
             const hashedPassword = yield argon2_1.default.hash(options.password);
@@ -182,6 +182,28 @@ let UserResolver = class UserResolver {
         });
     }
     ;
+    changeUsername(change, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            const user = yield User_1.User.findOne({ where: { userId } });
+            if (change.username.length <= 6) {
+                return {
+                    errors: [{
+                            field: 'username',
+                            message: 'Username must be greater than 6'
+                        },
+                    ],
+                };
+            }
+            if (user) {
+                user.username = change.username;
+                user.save();
+            }
+            return {
+                user
+            };
+        });
+    }
 };
 __decorate([
     (0, type_graphql_1.Query)(() => String),
@@ -224,6 +246,15 @@ __decorate([
     __metadata("design:paramtypes", [changePasswordInput_1.changePasswordInput, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "changePassword", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => UserResponse, { nullable: true }),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)('change')),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [UserInput, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "changeUsername", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);

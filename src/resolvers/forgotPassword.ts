@@ -1,5 +1,5 @@
 
-import { User } from "src/entity/User";
+import { User } from "src/entities/User";
 import { isAuth } from "src/middleware/isAuth";
 import { forgotPasswordPrefix } from "src/prefixes/redisPrefixes";
 import { redis } from "src/redis";
