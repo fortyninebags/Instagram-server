@@ -56,7 +56,7 @@ export class MessageResolver{
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async likeMessage(
-  @Arg('commentId', () => Int) messageId:number,
+  @Arg('messageId', () => Int) messageId:number,
   @Arg('value',() => Int) value: number,
   @Ctx() { req }: MyContext 
   ) {
