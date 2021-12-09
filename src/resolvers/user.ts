@@ -9,6 +9,7 @@ import { confirmUserPrefix, forgotPasswordPrefix } from "../prefixes/redisPrefix
 import { redis } from "../redis";
 import { COOKIE_NAME } from "../constants";
 import { isAuth } from "../middleware/isAuth";
+import { getConnection } from "typeorm";
 
 @InputType()
 export class UserInput{
@@ -71,10 +72,32 @@ export class UserResolver{
         }
         // Creates the user
        const hashedPassword = await argon2.hash(options.password);
-       const user = await User.create(
-       {username: options.username,
-       password: hashedPassword
-       }).save();
+       let user;
+       try {
+         const result = await getConnection()
+           .createQueryBuilder()
+           .insert()
+           .into(User)
+           .values({
+             username: options.username,
+             email: options.email,
+             password: hashedPassword,
+           })
+           .returning("*")
+           .execute();
+         user = result.raw[0];
+       } catch (err) {
+         if (err.code === "23505") {
+           return {
+             errors: [
+               {
+                 field: "username",
+                 message: "username already taken",
+               },
+             ],
+           };
+         }
+       }
 
        await sendEmail(email,await createConfirmationUrl(user.id));
   
@@ -139,7 +162,6 @@ export class UserResolver{
             rej(false)
             return
         }
- // Clears the cookie
       ctx.res.clearCookie(COOKIE_NAME)
          // if it passes gives a response
       res(true)

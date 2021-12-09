@@ -14,8 +14,6 @@ export class MessageInput{
     body:string;
 }
 
-
-
 @Resolver(Message)
 export class MessageResolver{
     @Mutation(() => Message,{nullable: true})
@@ -71,7 +69,7 @@ export class MessageResolver{
    values(${userId},${messageId},${realValue})
 
    update comment
-   set commentLikes = commentLikes + ${realValue}
+   set messageLikes = messageLikes + ${realValue}
    where id = ${messageId}
 
    COMMIT;

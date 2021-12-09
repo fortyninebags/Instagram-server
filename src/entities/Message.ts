@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity,ManyToOne,PrimaryGeneratedColumn} from "typeorm";
+import { BaseEntity, Column, Entity,ManyToOne,OneToMany,PrimaryGeneratedColumn} from "typeorm";
 import { User } from "./User";
+import { Likes } from "./Likes";
 
 @ObjectType()
 @Entity()
@@ -16,6 +17,9 @@ export class Message extends BaseEntity{
     @Column()
     creatorId: number;
 
+    @Field(() => Int, { nullable: true })
+    messageLikes: number | null; 
+
     @Field(() => User)
     @ManyToOne(() => User, (user) => user.message)
     sender: User;
@@ -23,8 +27,11 @@ export class Message extends BaseEntity{
     @Field(() => Int)
     @Column()
     receiverId: number;
+
+    @OneToMany(() => Likes, (likes) => likes.message)
+    likes: Likes[];
     
   // Could be seen or not
     @Field()
-    status: string;
+    receivedStatus: string;
 } 

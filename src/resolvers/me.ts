@@ -11,7 +11,7 @@ export class MeResolver{
         if(!ctx.req.session!.userId){
             return undefined
         }
-  // if he does fetches him
+  // if he does, fetches him
         return await User.findOne(ctx.req.session!.userId)
     }
 }

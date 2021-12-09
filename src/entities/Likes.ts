@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryColumn} from "typeorm";
+import { Message } from "./Message";
 import { Post } from "./Post";
 import { User } from "./User";
 
@@ -22,4 +23,9 @@ export class Likes extends BaseEntity {
     onDelete: "CASCADE",
   })
   post: Post;
+
+  @OneToMany(() => Message, (message) => message.likes ,{
+    onDelete: "CASCADE",
+  })
+  message: Message;
 }

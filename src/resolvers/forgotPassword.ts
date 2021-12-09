@@ -20,6 +20,7 @@ export class forgotPasswordResolver{
             return "Incorrect email" 
         }
         const token = v4()
+        // Token expires after a 24 hours from the time it was sent
         await redis.set(forgotPasswordPrefix + token,user.id,"ex",60*60*24)
         await sendEmail(email,`http://localhost:3000/user/change-password/${token}`);
 
