@@ -59,20 +59,27 @@ let MessageResolver = class MessageResolver {
             return true;
         });
     }
-    messages(limit, cursor) {
+    likeMessage(messageId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const realLimit = Math.min(50, limit);
-            const qb = (0, typeorm_1.getConnection)()
-                .getRepository(Message_1.Message)
-                .createQueryBuilder("m")
-                .orderBy('"createdAt"', "ASC")
-                .take(realLimit);
-            if (cursor) {
-                qb.where('"createdAt" < :cursor', {
-                    cursor: new Date(parseInt(cursor)),
-                });
-            }
-            return qb.getMany();
+            const isLiked = value !== null;
+            const realValue = isLiked ? 1 : null;
+            const userId = req.session.userId;
+            (0, typeorm_1.getConnection)().query(`
+   START TRANSACTION;
+
+   insert into likes("userId", "messageId","value")
+   values(${userId},${messageId},${realValue})
+
+   update comment
+   set commentLikes = commentLikes + ${realValue}
+   where id = ${messageId}
+
+   COMMIT;
+  `);
+            yield Message_1.Message.update({
+                id: messageId,
+            }, {});
+            return true;
         });
     }
 };
@@ -104,13 +111,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MessageResolver.prototype, "deleteMessage", null);
 __decorate([
-    (0, type_graphql_1.Query)(() => [Message_1.Message]),
-    __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
-    __param(1, (0, type_graphql_1.Arg)("cursor", { nullable: true })),
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)('commentId', () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)('value', () => type_graphql_1.Int)),
+    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, Number, Object]),
     __metadata("design:returntype", Promise)
-], MessageResolver.prototype, "messages", null);
+], MessageResolver.prototype, "likeMessage", null);
 MessageResolver = __decorate([
     (0, type_graphql_1.Resolver)(Message_1.Message)
 ], MessageResolver);

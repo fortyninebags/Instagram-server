@@ -62,9 +62,7 @@ export class CommentResolver{
   @Query(() => [Comment]) 
   @UseMiddleware(isAuth)
   async comments(
-      // limit of comments
     @Arg("limit",() => Int) limit:number,
-    // the date the comment is created
     @Arg("cursor", {nullable:true}) cursor: string | null
   ):Promise<PaginatedComments> {
    const realLimit = Math.min(6,limit)

@@ -2,7 +2,8 @@ import { MyContext } from "../constants/MyContext";
 import { Message } from "../entities/Message";
 import { isAuth } from "../middleware/isAuth";
 import { Arg, Ctx, Field,
- InputType, Int, Mutation, Query, Resolver,
+InputType, Int, 
+Mutation,Resolver,
 UseMiddleware } from "type-graphql";
 import { getConnection } from "typeorm";
 
@@ -12,6 +13,8 @@ export class MessageInput{
     @Field()
     body:string;
 }
+
+
 
 @Resolver(Message)
 export class MessageResolver{
@@ -49,26 +52,36 @@ export class MessageResolver{
     await Message.delete({ id, creatorId: req.session!.userId });
     return true;
    }
-   @Query(() => [Message]) 
-  async messages(
-    // // limits for showable posts
-    @Arg("limit",() => Int) limit:number,
-    // the date the post is created
-    @Arg("cursor", {nullable:true}) cursor: string | null
-  ):Promise<Message[]> {
-   const realLimit = Math.min(50,limit)
-   const qb = getConnection()
-   .getRepository(Message)
-   .createQueryBuilder("m")
-   // sorts them by the newest post
-   // double quotes in order to keep the A IN CAMEL CASE
-   .orderBy('"createdAt"',"ASC")
-   .take(realLimit)
-   if(cursor){
-     qb.where('"createdAt" < :cursor',{
-       cursor: new Date(parseInt(cursor)),
-      });
+   
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async likeMessage(
+  @Arg('commentId', () => Int) messageId:number,
+  @Arg('value',() => Int) value: number,
+  @Ctx() { req }: MyContext 
+  ) {
+  const isLiked = value !== null
+  const realValue = isLiked ? 1 : null
+  const userId = req.session!.userId
+
+  getConnection().query(`
+   START TRANSACTION;
+
+   insert into likes("userId", "messageId","value")
+   values(${userId},${messageId},${realValue})
+
+   update comment
+   set commentLikes = commentLikes + ${realValue}
+   where id = ${messageId}
+
+   COMMIT;
+  `)
+  await Message.update(
+    {
+      id:messageId,
+  },
+  {}
+  );
+  return true;
    }
-   return qb.getMany();
-  } 
 }
