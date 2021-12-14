@@ -35,6 +35,7 @@ const redisPrefixes_1 = require("../prefixes/redisPrefixes");
 const redis_1 = require("../redis");
 const constants_1 = require("../constants");
 const isAuth_1 = require("../middleware/isAuth");
+const typeorm_1 = require("typeorm");
 let UserInput = class UserInput {
 };
 __decorate([
@@ -105,9 +106,33 @@ let UserResolver = class UserResolver {
                 };
             }
             const hashedPassword = yield argon2_1.default.hash(options.password);
-            const user = yield User_1.User.create({ username: options.username,
-                password: hashedPassword
-            }).save();
+            let user;
+            try {
+                const result = yield (0, typeorm_1.getConnection)()
+                    .createQueryBuilder()
+                    .insert()
+                    .into(User_1.User)
+                    .values({
+                    username: options.username,
+                    email: options.email,
+                    password: hashedPassword,
+                })
+                    .returning("*")
+                    .execute();
+                user = result.raw[0];
+            }
+            catch (err) {
+                if (err.code === "23505") {
+                    return {
+                        errors: [
+                            {
+                                field: "username",
+                                message: "username already taken",
+                            },
+                        ],
+                    };
+                }
+            }
             yield (0, sendEmail_1.sendEmail)(email, yield (0, createConfirmationUrl_1.createConfirmationUrl)(user.id));
             ctx.req.session.userId = user.id;
             return {

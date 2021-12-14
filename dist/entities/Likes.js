@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Likes = void 0;
 const typeorm_1 = require("typeorm");
+const Message_1 = require("./Message");
 const Post_1 = require("./Post");
 const User_1 = require("./User");
 let Likes = class Likes extends typeorm_1.BaseEntity {
@@ -37,6 +38,12 @@ __decorate([
     }),
     __metadata("design:type", Post_1.Post)
 ], Likes.prototype, "post", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.likes, {
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Message_1.Message)
+], Likes.prototype, "message", void 0);
 Likes = __decorate([
     (0, typeorm_1.Entity)()
 ], Likes);

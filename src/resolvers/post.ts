@@ -6,6 +6,7 @@ import { MyContext } from "../constants/MyContext";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 import { User } from "../entities/User";
+import {Likes} from "../entities/Likes";
 
 @InputType()
 export class PostInput{
@@ -128,34 +129,59 @@ if(!req.session!.userId){
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async like(
-  @Arg('postId', () => Int) postId:number,
-  @Arg('value',() => Int) value: number,
-  @Ctx() { req }: MyContext 
+  async likePost(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: MyContext
   ) {
-  const isLiked = value !== null
-  const realValue = isLiked ? 1 : null
-  const userId = req.session!.userId
+    const isLiked = value !== null;
+    const realValue = isLiked ? 1: -1;
+    const { userId } = req.session!.userId;
+    const like = await Likes.findOne({ where: { postId, userId } });
 
-  getConnection().query(`
-   START TRANSACTION;
+    // the user has voted on the post before
+    // and they are changing their vote
+    if (like && like.value !== realValue) {
+      await getConnection().transaction(async (tm) => {
+        await tm.query(
+          `
+    update like
+    set value = $1
+    where "postId" = $2 and "userId" = $3
+        `,
+          [realValue, postId, userId]
+        );
 
-   insert into likes("userId", "postId","value")
-   values(${userId},${postId},${realValue})
+        await tm.query(
+          `
+          update post
+          set likes =  likes + $1
+          where id = $2
+        `,
+          [2 * realValue, postId]
+        );
+      });
+    } else if (!like) {
+      // never voted before 
+      await getConnection().transaction(async (tm) => {
+        await tm.query(
+          `
+    insert into likes ("userId", "postId", value)
+    values ($1, $2, $3)
+        `,
+          [userId, postId, realValue]
+        );
 
-   update post
-   set postLikes = postLikes + ${realValue}
-   where id = ${postId}
-
-   COMMIT;
-  `)
-  await Post.update(
-    {
-      id:postId,
-  },
-  {}
-  );
-  return true;
-   }
+        await tm.query(
+          `
+    update post
+    set likes = likes + $1
+    where id = $2
+      `,
+          [realValue, postId]
+        );
+      });
+    }
+    return true;
+ }
 }
-// fakes

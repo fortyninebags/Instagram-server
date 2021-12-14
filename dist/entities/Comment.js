@@ -51,9 +51,9 @@ __decorate([
     __metadata("design:type", Date)
 ], Comment.prototype, "updatedAt", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(() => type_graphql_1.Int),
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int, { nullable: true }),
     (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], Comment.prototype, "commentLikes", void 0);
 Comment = __decorate([
     (0, type_graphql_1.ObjectType)(),

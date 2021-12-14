@@ -37,5 +37,5 @@ export class Comment extends BaseEntity {
 
   @Field(() => Int,{nullable: true})
   @Column()
-  commentLikes: number | null;
+  likes: number | null;
 }

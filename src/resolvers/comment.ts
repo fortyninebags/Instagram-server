@@ -97,9 +97,9 @@ export class CommentResolver{
   @Arg('value',() => Int) value: number,
   @Ctx() { req }: MyContext 
   ) {
-  const isLiked = value !== null
-  const realValue = isLiked ? 1 : null
-  const userId = req.session!.userId
+  const isLiked = value !== null;
+  const realValue = isLiked ? 1 : -1;
+  const userId = req.session!.userId;
 
   getConnection().query(`
    START TRANSACTION;

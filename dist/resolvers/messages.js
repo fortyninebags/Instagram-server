@@ -71,7 +71,7 @@ let MessageResolver = class MessageResolver {
    values(${userId},${messageId},${realValue})
 
    update comment
-   set commentLikes = commentLikes + ${realValue}
+   set messageLikes = messageLikes + ${realValue}
    where id = ${messageId}
 
    COMMIT;
@@ -113,7 +113,7 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
-    __param(0, (0, type_graphql_1.Arg)('commentId', () => type_graphql_1.Int)),
+    __param(0, (0, type_graphql_1.Arg)('messageId', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)('value', () => type_graphql_1.Int)),
     __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),

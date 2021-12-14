@@ -31,8 +31,6 @@ const main = async () => {
         migrations: [path.join(__dirname, "./migrations/*")],
         entities : [User,Post,Profile,Message,Likes,Comment]
       });
-      
-// await connection.runMigrations()
 
   const schema =  await buildSchema({
       resolvers:[__dirname + "./resolvers/*.ts"],
