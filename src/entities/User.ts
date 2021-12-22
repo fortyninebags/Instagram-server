@@ -1,11 +1,13 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn,
 Entity,OneToMany,
+OneToOne,
 PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Likes } from "./Likes";
 import { Message } from "./Message";
 import { Post } from "./Post";
 import {Comment} from "./Comment";
+import { Profile } from "./Profile";
 
 
 @ObjectType()
@@ -55,4 +57,7 @@ export class User extends BaseEntity {
     
     @OneToMany(() => Message, (message) => message.sender)
     message: Message[];
+
+    @OneToOne(() => Profile, (profile) => profile.user)
+    profile:Profile;
 }

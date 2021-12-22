@@ -1,5 +1,5 @@
 import { User } from "../entities/User";
-import { Arg, Ctx, Field, InputType, Mutation,ObjectType,Query,Resolver, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, Field, InputType, Mutation,ObjectType,Resolver, UseMiddleware } from "type-graphql";
 import argon2 from 'argon2';
 import { MyContext } from "../constants/MyContext";
 import { sendEmail } from "../utils/sendEmail";
@@ -45,10 +45,6 @@ export class UserResponse{
 
 @Resolver()
 export class UserResolver{
-    @Query(() => String)
-    async hello() {
-        return "Hello world"
-    }
     @Mutation(() => UserResponse)
     async register(
       @Arg('options', () => String) options: UserInput,

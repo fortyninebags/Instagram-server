@@ -8,3 +8,5 @@ export const createConfirmationUrl = async (userId : number) => {
 
     return `http://localhost:3000/user/confirm/${token}`;
 };
+
+    

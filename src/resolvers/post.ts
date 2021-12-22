@@ -158,7 +158,7 @@ if(!req.session!.userId){
           set likes =  likes + $1
           where id = $2
         `,
-          [2 * realValue, postId]
+          [realValue, postId]
         );
       });
     } else if (!like) {

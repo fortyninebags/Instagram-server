@@ -68,7 +68,7 @@ export class MessageResolver{
    insert into likes("userId", "messageId","value")
    values(${userId},${messageId},${realValue})
 
-   update comment
+   update message
    set messageLikes = messageLikes + ${realValue}
    where id = ${messageId}
 
