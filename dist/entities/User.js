@@ -16,16 +16,18 @@ const Likes_1 = require("./Likes");
 const Message_1 = require("./Message");
 const Post_1 = require("./Post");
 const Comment_1 = require("./Comment");
+const class_validator_1 = require("class-validator");
 let User = class User extends typeorm_1.BaseEntity {
 };
 __decorate([
-    (0, type_graphql_1.Field)(() => type_graphql_1.ID),
+    (0, type_graphql_1.Field)(),
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
+    (0, class_validator_1.MinLength)(6),
+    (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
 ], User.prototype, "username", void 0);
 __decorate([
@@ -35,6 +37,7 @@ __decorate([
 ], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
@@ -76,6 +79,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.sender),
     __metadata("design:type", Array)
 ], User.prototype, "message", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], User.prototype, "bio", void 0);
 User = __decorate([
     (0, type_graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)()

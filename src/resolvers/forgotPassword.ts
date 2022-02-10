@@ -1,7 +1,7 @@
 
 import { User } from "../entities/User";
 import { isAuth } from "../middleware/isAuth";
-import { forgotPasswordPrefix } from "src/prefixes/redisPrefixes";
+import { forgotPasswordPrefix } from "../prefixes/redisPrefixes";
 import { redis } from "../redis";
 import { sendEmail } from "../utils/sendEmail";
 import { Arg, Mutation, Resolver, UseMiddleware } from "type-graphql";

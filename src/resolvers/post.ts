@@ -16,23 +16,15 @@ export class PostInput{
 
 @ObjectType()
 class PaginatedPosts {
-  @Field(() => Post)
-  posts: Post[]
+  @Field(() => [Post])
+  posts: Post[];
   
   @Field()
-  hasMore: boolean
+  hasMore: boolean;
 }
 
 @Resolver(Post)
 export class PostResolver{
-
-// @FieldResolver(() => String)
-// textSnippet(
-//   @Root() root:Post
-// ) {
-//   return root.description.slice(0,50)
-// }
-
 @FieldResolver(() => User)
 async creator(
 @Root() post: Post,
@@ -41,7 +33,7 @@ async creator(
 return  await userLoader.load(post.creatorId)
 }
 
-@FieldResolver(() => Post)
+@FieldResolver(() => Int,{nullable: true})
 async likeStatus(
   @Root() post: Post,
   @Ctx() {likesLoader,req}: MyContext
@@ -53,7 +45,9 @@ if(!req.session!.userId){
  const like = await  likesLoader.load({
    postId: post.id,
    userId: req.session!.userId
- })
+ });
+
+
  return like ? like.value : null;
 }
 
@@ -86,6 +80,14 @@ if(!req.session!.userId){
       }
   return post;
     }
+
+
+@Query(() => Post, { nullable: true })
+   post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
+    return Post.findOne(id);
+}
+  
+
 @Mutation(() => Boolean)
 @UseMiddleware(isAuth)
  async deletePost(
@@ -94,20 +96,20 @@ if(!req.session!.userId){
     await Post.delete({ id, creatorId: req.session!.userId });
     return true;
   }
-  @Query(() => [Post]) 
+  @Query(() => PaginatedPosts) 
   @UseMiddleware(isAuth)
   async posts(
     // // limits for showable posts
     @Arg("limit",() => Int) limit:number,
     // the date the post is created
-    @Arg("cursor", {nullable:true}) cursor: string | null
-  ):Promise<PaginatedPosts> {
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null  
+    ):Promise<PaginatedPosts> {
    const realLimit = Math.min(50,limit)
    const realLimitPlusOne = realLimit +1
 
    const replacements : any[] = [realLimitPlusOne]
 
-   if(cursor){
+   if(cursor){ 
      replacements.push(new Date(parseInt(cursor)))
    }
    const posts = await getConnection().query(`
@@ -123,13 +125,14 @@ if(!req.session!.userId){
    );
    return { 
      posts: posts.slice(0,realLimit),
-     hasMore : posts.length === realLimitPlusOne
-   }
+     hasMore : posts.length === realLimitPlusOne,
+   };
   } 
+
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async likePost(
+  async like(
     @Arg("postId", () => Int) postId: number,
     @Arg("value", () => Int) value: number,
     @Ctx() { req }: MyContext
@@ -137,6 +140,7 @@ if(!req.session!.userId){
     const isLiked = value !== null;
     const realValue = isLiked ? 1: -1;
     const { userId } = req.session!.userId;
+    
     const like = await Likes.findOne({ where: { postId, userId } });
 
     // the user has voted on the post before

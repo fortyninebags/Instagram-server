@@ -1,32 +1,33 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn,
 Entity,OneToMany,
-OneToOne,
 PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Likes } from "./Likes";
 import { Message } from "./Message";
 import { Post } from "./Post";
 import {Comment} from "./Comment";
-import { Profile } from "./Profile";
+import { MinLength } from "class-validator";
 
 
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-    @Field(() => ID)
-    @PrimaryGeneratedColumn()
-    id: number;
-  
     @Field()
-    @Column()
-    username: string;
-  
+    @PrimaryGeneratedColumn()
+    id!: number;
+
+    @Field()
+    @MinLength(6)
+    @Column({ unique: true })
+    username!: string;
+
     @Field()
     @Column({ unique: true })
-    email: string;
-  
+    email!: string;
+
     @Column()
-    password: string;
+    @MinLength(6)
+    password!: string;
 
     @Field(() => String)
     @CreateDateColumn()
@@ -58,6 +59,7 @@ export class User extends BaseEntity {
     @OneToMany(() => Message, (message) => message.sender)
     message: Message[];
 
-    @OneToOne(() => Profile, (profile) => profile.user)
-    profile:Profile;
+    @Field()
+    bio: string
+    
 }

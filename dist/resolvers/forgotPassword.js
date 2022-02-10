@@ -24,7 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.forgotPasswordResolver = void 0;
 const User_1 = require("../entities/User");
 const isAuth_1 = require("../middleware/isAuth");
-const redisPrefixes_1 = require("src/prefixes/redisPrefixes");
+const redisPrefixes_1 = require("../prefixes/redisPrefixes");
 const redis_1 = require("../redis");
 const sendEmail_1 = require("../utils/sendEmail");
 const type_graphql_1 = require("type-graphql");

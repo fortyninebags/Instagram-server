@@ -27,6 +27,7 @@ const type_graphql_1 = require("type-graphql");
 const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
 const User_1 = require("../entities/User");
+const Likes_1 = require("../entities/Likes");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -40,7 +41,7 @@ exports.PostInput = PostInput;
 let PaginatedPosts = class PaginatedPosts {
 };
 __decorate([
-    (0, type_graphql_1.Field)(() => Post_1.Post),
+    (0, type_graphql_1.Field)(() => [Post_1.Post]),
     __metadata("design:type", Array)
 ], PaginatedPosts.prototype, "posts", void 0);
 __decorate([
@@ -88,6 +89,9 @@ let PostResolver = class PostResolver {
             return post;
         });
     }
+    post(id) {
+        return Post_1.Post.findOne(id);
+    }
     deletePost(id, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             yield Post_1.Post.delete({ id, creatorId: req.session.userId });
@@ -113,30 +117,43 @@ let PostResolver = class PostResolver {
    `, replacements);
             return {
                 posts: posts.slice(0, realLimit),
-                hasMore: posts.length === realLimitPlusOne
+                hasMore: posts.length === realLimitPlusOne,
             };
         });
     }
     like(postId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isLiked = value !== null;
-            const realValue = isLiked ? 1 : null;
-            const userId = req.session.userId;
-            (0, typeorm_1.getConnection)().query(`
-   START TRANSACTION;
-
-   insert into likes("userId", "postId","value")
-   values(${userId},${postId},${realValue})
-
-   update post
-   set postLikes = postLikes + ${realValue}
-   where id = ${postId}
-
-   COMMIT;
-  `);
-            yield Post_1.Post.update({
-                id: postId,
-            }, {});
+            const realValue = isLiked ? 1 : -1;
+            const { userId } = req.session.userId;
+            const like = yield Likes_1.Likes.findOne({ where: { postId, userId } });
+            if (like && like.value !== realValue) {
+                yield (0, typeorm_1.getConnection)().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
+    update like
+    set value = $1
+    where "postId" = $2 and "userId" = $3
+        `, [realValue, postId, userId]);
+                    yield tm.query(`
+          update post
+          set likes =  likes + $1
+          where id = $2
+        `, [realValue, postId]);
+                }));
+            }
+            else if (!like) {
+                yield (0, typeorm_1.getConnection)().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
+    insert into likes ("userId", "postId", value)
+    values ($1, $2, $3)
+        `, [userId, postId, realValue]);
+                    yield tm.query(`
+    update post
+    set likes = likes + $1
+    where id = $2
+      `, [realValue, postId]);
+                }));
+            }
             return true;
         });
     }
@@ -150,7 +167,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "creator", null);
 __decorate([
-    (0, type_graphql_1.FieldResolver)(() => Post_1.Post),
+    (0, type_graphql_1.FieldResolver)(() => type_graphql_1.Int, { nullable: true }),
     __param(0, (0, type_graphql_1.Root)()),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
@@ -176,6 +193,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "updatePost", null);
 __decorate([
+    (0, type_graphql_1.Query)(() => Post_1.Post, { nullable: true }),
+    __param(0, (0, type_graphql_1.Arg)("id", () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "post", null);
+__decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)("id", () => type_graphql_1.Int)),
@@ -185,10 +209,10 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
 __decorate([
-    (0, type_graphql_1.Query)(() => [Post_1.Post]),
+    (0, type_graphql_1.Query)(() => PaginatedPosts),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
-    __param(1, (0, type_graphql_1.Arg)("cursor", { nullable: true })),
+    __param(1, (0, type_graphql_1.Arg)("cursor", () => String, { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
@@ -196,8 +220,8 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
-    __param(0, (0, type_graphql_1.Arg)('postId', () => type_graphql_1.Int)),
-    __param(1, (0, type_graphql_1.Arg)('value', () => type_graphql_1.Int)),
+    __param(0, (0, type_graphql_1.Arg)("postId", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)("value", () => type_graphql_1.Int)),
     __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, Object]),

@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const Message_1 = require("./Message");
 const Post_1 = require("./Post");
 const User_1 = require("./User");
+const Comment_1 = require("./Comment");
 let Likes = class Likes extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -44,6 +45,12 @@ __decorate([
     }),
     __metadata("design:type", Message_1.Message)
 ], Likes.prototype, "message", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Comment_1.Comment, (comment) => comment.likes, {
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Array)
+], Likes.prototype, "comment", void 0);
 Likes = __decorate([
     (0, typeorm_1.Entity)()
 ], Likes);

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Comment = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Likes_1 = require("./Likes");
 const Post_1 = require("./Post");
 const User_1 = require("./User");
 let Comment = class Comment extends typeorm_1.BaseEntity {
@@ -51,10 +52,9 @@ __decorate([
     __metadata("design:type", Date)
 ], Comment.prototype, "updatedAt", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(() => type_graphql_1.Int, { nullable: true }),
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Object)
-], Comment.prototype, "commentLikes", void 0);
+    (0, typeorm_1.OneToMany)(() => Likes_1.Likes, (likes) => likes.comment),
+    __metadata("design:type", Array)
+], Comment.prototype, "likes", void 0);
 Comment = __decorate([
     (0, type_graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)()

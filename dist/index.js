@@ -29,26 +29,55 @@ const User_1 = require("./entities/User");
 const Likes_1 = require("./entities/Likes");
 const Message_1 = require("./entities/Message");
 const Post_1 = require("./entities/Post");
-const Profile_1 = require("./entities/Profile");
 const Comment_1 = require("./entities/Comment");
+const forgotPassword_1 = require("./resolvers/forgotPassword");
+const post_1 = require("./resolvers/post");
+const confirmUser_1 = require("./resolvers/confirmUser");
+const messages_1 = require("./resolvers/messages");
+const comment_1 = require("./resolvers/comment");
+const me_1 = require("./resolvers/me");
+const hello_1 = require("./resolvers/hello");
+const user_1 = require("./resolvers/user");
+const apollo_server_core_1 = require("apollo-server-core");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const connection = yield (0, typeorm_1.createConnection)({
         type: 'postgres',
-        database: 'instagram',
+        database: 'postgres',
         username: 'postgres',
         password: 'postgres',
         logging: true,
         synchronize: true,
         migrations: [path_1.default.join(__dirname, "./migrations/*")],
-        entities: [User_1.User, Post_1.Post, Profile_1.Profile, Message_1.Message, Likes_1.Likes, Comment_1.Comment]
+        entities: [User_1.User, Post_1.Post, Message_1.Message, Likes_1.Likes, Comment_1.Comment]
     });
     const schema = yield (0, type_graphql_1.buildSchema)({
-        resolvers: [__dirname + "./resolvers/*.ts"],
+        resolvers: [user_1.UserResolver, post_1.PostResolver,
+            messages_1.MessageResolver, confirmUser_1.ConfirmUserResolver, comment_1.CommentResolver,
+            me_1.MeResolver, hello_1.HelloResolver, forgotPassword_1.forgotPasswordResolver],
         validate: false,
     });
     const app = (0, express_1.default)();
     yield connection.runMigrations();
     const RedisStore = (0, connect_redis_1.default)(express_session_1.default);
+    app.use((0, cors_1.default)({
+        origin: "http://localhost:4000/graphql",
+        credentials: true,
+    }));
+    app.use((0, express_session_1.default)({
+        name: constants_1.COOKIE_NAME,
+        store: new RedisStore({
+            client: redis_1.redis,
+        }),
+        secret: "u12jn32iu131ni321iuh6hh87t65f53s486gt75656fv6",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            sameSite: 'lax',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24 * 365 * 2
+        }
+    }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema,
         context: ({ req, res }) => ({
@@ -58,29 +87,20 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             userLoader: (0, createUserLoader_1.createUserLoader)(),
             likesLoader: (0, createLikesLoader_1.createLikeLoader)()
         }),
+        plugins: [
+            (0, apollo_server_core_1.ApolloServerPluginLandingPageGraphQLPlayground)({})
+        ],
     });
-    app.use((0, cors_1.default)({
-        credentials: true,
-        origin: 'https://localhost:3000'
-    }));
-    app.use((0, express_session_1.default)({
-        store: new RedisStore({
-            client: redis_1.redis,
-        }),
-        name: constants_1.COOKIE_NAME,
-        secret: "u12jn32iu131ni321iuh6hh87t65f53s486gt75656fv6",
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 1000 * 60 * 60 * 24 * 365 * 2
-        }
-    }));
-    apolloServer.applyMiddleware({ app, cors: false });
+    yield apolloServer.start();
+    apolloServer.applyMiddleware({
+        app,
+        cors: false,
+    });
     app.listen(4000, () => {
         console.log("Currently listening on port 4000");
     });
 });
-main().catch(err => console.error(err));
+main().catch(err => {
+    console.error(err);
+});
 //# sourceMappingURL=index.js.map

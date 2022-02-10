@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryColumn} from "
 import { Message } from "./Message";
 import { Post } from "./Post";
 import { User } from "./User";
-
+import {Comment} from "./Comment";
 
 
 @Entity()
@@ -28,4 +28,10 @@ export class Likes extends BaseEntity {
     onDelete: "CASCADE",
   })
   message: Message;
+
+  
+  @ManyToOne(() => Comment, (comment) => comment.likes, {
+    onDelete: "CASCADE",
+  })
+  comment: Comment[];
 }

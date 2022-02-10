@@ -102,7 +102,7 @@ let CommentResolver = class CommentResolver {
     likeComment(commentId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isLiked = value !== null;
-            const realValue = isLiked ? 1 : null;
+            const realValue = isLiked ? 1 : -1;
             const userId = req.session.userId;
             (0, typeorm_1.getConnection)().query(`
    START TRANSACTION;
@@ -154,7 +154,7 @@ __decorate([
     (0, type_graphql_1.Query)(() => [Comment_1.Comment]),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
-    __param(1, (0, type_graphql_1.Arg)("cursor", { nullable: true })),
+    __param(1, (0, type_graphql_1.Arg)("cursor", () => String, { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)

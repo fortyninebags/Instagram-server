@@ -63,7 +63,7 @@ export class CommentResolver{
   @UseMiddleware(isAuth)
   async comments(
     @Arg("limit",() => Int) limit:number,
-    @Arg("cursor", {nullable:true}) cursor: string | null
+    @Arg("cursor", () => String, {nullable:true}) cursor: string | null
   ):Promise<PaginatedComments> {
    const realLimit = Math.min(6,limit)
    const realLimitPlusOne = realLimit +1

@@ -15,25 +15,36 @@ import { User } from './entities/User';
 import { Likes } from './entities/Likes';
 import { Message } from './entities/Message';
 import { Post } from './entities/Post';
-import { Profile } from './entities/Profile';
 import { Comment } from './entities/Comment';
+import { forgotPasswordResolver } from './resolvers/forgotPassword';
+import { PostResolver } from './resolvers/post';
+import { ConfirmUserResolver } from './resolvers/confirmUser';
+import { MessageResolver } from './resolvers/messages';
+import { CommentResolver } from './resolvers/comment';
+import { MeResolver } from './resolvers/me';
+import { HelloResolver } from './resolvers/hello';
+import { UserResolver } from './resolvers/user';
+import {ApolloServerPluginLandingPageGraphQLPlayground} from "apollo-server-core"
+
 
 
 const main = async () => {
     // Creates a database
     const connection = await createConnection({
         type:'postgres',
-        database: 'instagram',
+        database: 'postgres',
         username: 'postgres',
         password: 'postgres',
         logging: true,
         synchronize: true,
         migrations: [path.join(__dirname, "./migrations/*")],
-        entities : [User,Post,Profile,Message,Likes,Comment]
+        entities : [User,Post,Message,Likes,Comment]
       });
 
   const schema =  await buildSchema({
-      resolvers:[__dirname + "./resolvers/*.ts"],
+      resolvers:[UserResolver,PostResolver,
+        MessageResolver,ConfirmUserResolver,CommentResolver,
+        MeResolver,HelloResolver,forgotPasswordResolver],
       validate: false,
   });
 
@@ -43,35 +54,26 @@ const main = async () => {
   
   const RedisStore = connectRedis(session);
 
-    const apolloServer = new ApolloServer({
-    schema,
-    context: ({req,res}) => ({
-    req,
-    res,
-    redis,
-    userLoader: createUserLoader(),
-    likesLoader: createLikeLoader()
-    }),
-});
 
-   app.use(
-        cors({
-        credentials: true,
-        origin: 'https://localhost:3000'
-     }),
-    );
+
+  app.use(
+    cors({
+      origin:"http://localhost:4000/graphql",
+      credentials: true,
+    })
+  );
+
     app.use(
         session({
+            name: COOKIE_NAME,
             store: new RedisStore({
                 client: redis,
             }),
-            // Cookie name
-            name: COOKIE_NAME,
-            // Secret code
             secret: "u12jn32iu131ni321iuh6hh87t65f53s486gt75656fv6",
             resave: false,
             saveUninitialized: false,
             cookie: {
+                sameSite: 'lax',             
                 httpOnly: true,// accepts only http
                 secure: process.env.NODE_ENV === "production",// works only in production
                 maxAge: 1000*60*60*24*365*2// 2 years
@@ -79,11 +81,31 @@ const main = async () => {
         })
     );
 
-    apolloServer.applyMiddleware({app, cors: false});
+    const apolloServer = new ApolloServer({
+        schema,
+        context: ({req,res}) => ({
+        req,
+        res,
+        redis,
+        userLoader: createUserLoader(),
+        likesLoader: createLikeLoader()
+        }),
+        plugins: [
+            ApolloServerPluginLandingPageGraphQLPlayground({})
+        ],
+    });
 
+    await apolloServer.start();
+    apolloServer.applyMiddleware({
+        app,
+        cors: false,
+      });
+    
     app.listen(4000,() => {
         console.log("Currently listening on port 4000")
     });
 };
 
-main().catch(err => console.error(err));
+main().catch(err => {
+     console.error(err);
+    });

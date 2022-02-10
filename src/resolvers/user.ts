@@ -4,9 +4,7 @@ import argon2 from 'argon2';
 import { MyContext } from "../constants/MyContext";
 import { sendEmail } from "../utils/sendEmail";
 import { createConfirmationUrl } from "../utils/createConfirmationUrl";
-import { changePasswordInput } from "../forgotPasswordInput.ts/changePasswordInput";
-import { confirmUserPrefix, forgotPasswordPrefix } from "../prefixes/redisPrefixes";
-import { redis } from "../redis";
+import {  forgotPasswordPrefix } from "../prefixes/redisPrefixes";
 import { COOKIE_NAME } from "../constants";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
@@ -36,37 +34,21 @@ export class ErrorField{
 export class UserResponse{
     // IF an error occurs
     @Field(() => [ErrorField],{nullable: true})
-    errors?: ErrorField[]
+    errors?: ErrorField[];
 
     // IF IT WORKED
     @Field(() => User,{nullable: true})
-    user?: User
+    user?: User;
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver{
     @Mutation(() => UserResponse)
     async register(
       @Arg('options', () => String) options: UserInput,
-      @Arg('email',() => String) email: string,
+      @Arg('email') email: string,
       @Ctx() ctx : MyContext,
     ):Promise<UserResponse>{
-        if(options.password.length <= 6)
-        return {
-            errors: [{
-                field: "password",
-                message:"Password must be greater than 6"
-            }],
-        }
-        if(options.username.length <=6 ) {
-            return{
-                errors: [{
-                   field: "username",
-                   message:"Username must be greater than 6"
-                }]
-            }
-        }
-        // Creates the user
        const hashedPassword = await argon2.hash(options.password);
        let user;
        try {
@@ -105,24 +87,25 @@ export class UserResolver{
 
     @Mutation(() => UserResponse)
     async login(
-      @Arg('email',() => String) email: string,
+      @Arg("usernameOrEmail") usernameOrEmail: string,
       @Arg('password',() => String) password: string,
-      @Arg('username',() => String) username: string,
       @Ctx() ctx : MyContext,
     ):Promise<UserResponse>{
-        const user = await User.findOne(
-            email.includes("@")
-              ? { where: { email: email } }
-              : { where: { username: username } }
-          );
-          if(!user) {
-              return{
-                  errors: [{
-                      field: "username",
-                      message: "Username already exists",
-                  }],
-              }
-          }
+      const user = await User.findOne(
+        usernameOrEmail.includes("@")
+          ? { where: { email: usernameOrEmail } }
+          : { where: { username: usernameOrEmail } }
+      );
+      if (!user) {
+        return {
+          errors: [
+            {
+              field: "usernameOrEmail",
+              message: "that username doesn't exist",
+            },
+          ],
+        };
+      }
            const valid = await argon2.verify(user.password,password);
            if(!valid){
                return{
@@ -140,53 +123,89 @@ export class UserResolver{
                   }],
               }
           } 
+
           ctx.req.session!.userId = user.id;
+
           return {
               user
           };
         }
 
-     @Mutation(() => Boolean)
-     async logout(
-       @Ctx() ctx : MyContext,
-     ):Promise<Boolean>{
-    return new Promise
-    ((res,rej) => ctx.req.session!.destroy((err) => {
-        if(err) {
-            console.error(err)
-            // if an error occurs rejects
-            rej(false)
-            return
+      @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) =>
+      req.session!.destroy((err) => {
+        res.clearCookie(COOKIE_NAME);
+        if (err) {
+          console.log(err);
+          resolve(false);
+          return;
         }
-      ctx.res.clearCookie(COOKIE_NAME)
-         // if it passes gives a response
-      res(true)
-   })
-  )
+
+        resolve(true);
+      })
+    );
 }
 
- @Mutation(() => User,{nullable: true})
+ @Mutation(() => UserResponse,{nullable: true})
  @UseMiddleware(isAuth)
  async changePassword(
-     @Arg('data') {token,password}: changePasswordInput,
-     @Ctx() ctx: MyContext
- ):Promise<User | null>{
-    const userId = await redis.get(confirmUserPrefix + token);
-    if(!userId){
-        return null
+  @Arg("token") token: string,
+  @Arg("newPassword") newPassword: string,
+  @Ctx() { redis, req }: MyContext
+ ):Promise<UserResponse | null>{
+  if (newPassword.length <= 6) {
+    return {
+      errors: [
+        {
+          field: "newPassword",
+          message: "Length must be greater than 6",
+        },
+      ],
+    };
+  }
+
+  const key = forgotPasswordPrefix + token;
+  const userId = await redis.get(key);
+  if (!userId) {
+    return {
+      errors: [
+        {
+          field: "token",
+          message: "Token expired",
+        },
+      ],
+    };
+  }
+
+  const userIdNum = parseInt(userId);
+  const user = await User.findOne(userIdNum);
+
+  if (!user) {
+    return {
+      errors: [
+        {
+          field: "token",
+          message: "User no longer exists",
+        },
+      ],
+    };
+  }
+
+  await User.update(
+    { id: userIdNum },
+    {
+      password: await argon2.hash(newPassword),
     }
-    const user = await User.findOne(userId);
+  );
 
-    if(!user){
-        return null
-    }
-    await redis.del(forgotPasswordPrefix + token)
+  await redis.del(key);
 
-    user.password = await argon2.hash(password)
-    await user.save();
+  // log in user after change password
+  req.session!.userId = user.id;
 
-    ctx.req.session!.userId = user.id;
-    return user;
+  return { user }
+ 
  };
  @Mutation(() => UserResponse,{nullable: true})
  @UseMiddleware(isAuth)
