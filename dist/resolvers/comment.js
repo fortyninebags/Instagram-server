@@ -78,7 +78,7 @@ let CommentResolver = class CommentResolver {
     }
     comments(limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
-            const realLimit = Math.min(6, limit);
+            const realLimit = Math.min(21, limit);
             const realLimitPlusOne = realLimit + 1;
             const replacements = [realLimitPlusOne];
             if (cursor) {

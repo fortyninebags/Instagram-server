@@ -66,21 +66,22 @@ if(!req.session!.userId){
    @UseMiddleware(isAuth)
     async updatePost(
      @Arg('id' , () => Int) id: number,
-     @Arg('input') input: PostInput,
+     @Arg('description') description: string,
+     @Ctx() { req }: MyContext
     ):Promise<Post | null> {
-      const post = await Post.findOne(id)
-      if(!post){
-      return null
-      } 
-  if(input.description){
-  await Post.update({id},{
-  description: input.description
-  })
-  await post.save()
-      }
-  return post;
-    }
+      const result = await getConnection()
+      .createQueryBuilder()
+      .update(Post)
+      .set({description})
+      .where('id = :id and "creatorId" = :creatorId', {
+        id,
+        creatorId: req.session!.userId,
+      })
+      .returning("*")
+      .execute();
 
+    return result.raw[0]
+    }
 
 @Query(() => Post, { nullable: true })
    post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {

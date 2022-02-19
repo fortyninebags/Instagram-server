@@ -65,7 +65,7 @@ export class CommentResolver{
     @Arg("limit",() => Int) limit:number,
     @Arg("cursor", () => String, {nullable:true}) cursor: string | null
   ):Promise<PaginatedComments> {
-   const realLimit = Math.min(6,limit)
+   const realLimit = Math.min(21,limit)
    const realLimitPlusOne = realLimit +1
 
    const replacements : any[] = [realLimitPlusOne]
@@ -122,4 +122,3 @@ export class CommentResolver{
   return true;
    }
 }
-// fakes

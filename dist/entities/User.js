@@ -36,6 +36,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int, { defaultValue: 0 }),
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], User.prototype, "followers", void 0);
+__decorate([
     (0, typeorm_1.Column)(),
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
@@ -83,6 +88,10 @@ __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
 ], User.prototype, "bio", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => Boolean, { defaultValue: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "active", void 0);
 User = __decorate([
     (0, type_graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)()

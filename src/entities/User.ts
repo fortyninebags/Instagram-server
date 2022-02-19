@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn,
 Entity,OneToMany,
 PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -24,6 +24,10 @@ export class User extends BaseEntity {
     @Field()
     @Column({ unique: true })
     email!: string;
+
+    @Field(() => Int, {defaultValue: 0})
+    @Column()
+    followers: number
 
     @Column()
     @MinLength(6)
@@ -60,6 +64,9 @@ export class User extends BaseEntity {
     message: Message[];
 
     @Field()
-    bio: string
+    bio: string;
+
+    @Field(() => Boolean,{defaultValue: false})
+    active: boolean;
     
 }
